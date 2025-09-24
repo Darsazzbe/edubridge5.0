@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EduBridge — Образование будущего</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <header class="hero">
+    <div class="container">
+      <h1>EduBridge</h1>
+      <p class="tagline">Образование, которое ведёт к результату</p>
+      <a href="#courses" class="cta-button">Подобрать курс</a>
+    </div>
+  </header>  
+
+  <section class="tracks" id="tracks">
+    <h2 data-aos="fade-up">Основные направления</h2>
+    <div class="track-grid" data-aos="zoom-in-up">
+      <div class="track">
+        <i class="fas fa-code"></i><br> IT <!-- Добавляем <br> для переноса на следующую строку -->
+      </div>
+      <div class="track">
+        <i class="fas fa-paint-brush"></i> Дизайн
+      </div>
+      <div class="track">
+        <i class="fas fa-bullhorn"></i> Маркетинг
+      </div>
+      <div class="track">
+        <i class="fas fa-briefcase"></i> Менеджмент
+      </div>
+    </div>
+  </section>  
+
+  <section class="courses" id="courses">
+    <h2 data-aos="fade-up">Популярные курсы</h2>
+    <div class="course-grid">
+      <div class="course-card" data-aos="fade-up">
+        <h3>UI/UX Дизайн</h3>
+        <p>4 часа</p>
+        <p class="description">Освойте основы проектирования пользовательских интерфейсов и опыт работы с пользователями. Курс для начинающих.</p>
+      </div>
+      <div class="course-card" data-aos="fade-up" data-aos-delay="100">
+        <h3>Основы Frontend</h3>
+        <p>6 часов</p>
+        <p class="description">Погрузитесь в основы фронтенд-разработки, освоив HTML, CSS и JavaScript.</p>
+      </div>
+      <div class="course-card" data-aos="fade-up" data-aos-delay="200">
+        <h3>Продвижение в соцсетях</h3>
+        <p>3 часа</p>
+        <p class="description">Научитесь продвигать бренды и продукты в социальных сетях с максимальной эффективностью.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <h2 data-aos="fade-up">Связаться с нами</h2>
+    <form class="contact-form" id="contact-form" data-aos="fade-up" data-aos-delay="100">
+      <input type="text" id="name" placeholder="Ваше имя" required />
+      <input type="email" id="email" placeholder="Ваш email" required />
+  
+      <div class="course-selection" id="course-selection" style="display: none;">
+        <label class="course-label">Выберите курс</label>
+        <div class="course-buttons">
+          <button class="course-option" type="button">UI/UX Дизайн</button>
+          <button class="course-option" type="button">Основы Frontend</button>
+          <button class="course-option" type="button">Продвижение в соцсетях</button>
+        </div>
+      </div>
+  
+      <textarea id="question" placeholder="Ваш вопрос... (необязательно)"></textarea>
+      <button type="submit">Отправить</button>
+    </form>
+  </section>
+
+  <a href="https://wa.me/79840485021" id="whatsappButton" target="_blank">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init();
+
+    const nameInput = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    const courseSelection = document.getElementById("course-selection");
+    const form = document.getElementById("contact-form");
+    let selectedCourse = null;
+
+    function validateName(name) {
+      return /^[а-яА-ЯёЁ]+$/.test(name.trim());
+    }
+
+    function validateEmail(email) {
+      return /^[a-zA-Z0-9._%+-]+@(gmail\.com|mail\.ru)$/.test(email.trim());
+    }
+
+    function checkInputs() {
+      const nameValid = validateName(nameInput.value);
+      const emailValid = validateEmail(emailInput.value);
+      courseSelection.style.display = (nameValid && emailValid) ? "block" : "none";
+    }
+
+    nameInput.addEventListener("input", checkInputs);
+    emailInput.addEventListener("input", checkInputs);
+
+    courseSelection.addEventListener("click", function (e) {
+      if (e.target && e.target.classList.contains("course-option")) {
+        if (selectedCourse) selectedCourse.classList.remove("selected");
+        selectedCourse = e.target;
+        selectedCourse.classList.add("selected");
+      }
+    });
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+
+      if (!validateName(name)) {
+        alert("Имя должно содержать только русские буквы.");
+        return;
+      }
+
+      if (!validateEmail(email)) {
+        alert("Введите email на gmail.com или mail.ru.");
+        return;
+      }
+
+      if (!selectedCourse) {
+        alert("Пожалуйста, выберите курс.");
+        return;
+      }
+
+      const data = {
+        name,
+        email,
+        course: selectedCourse.textContent,
+        question: document.getElementById("question").value.trim()
+      };
+
+      fetch("http://localhost:3000/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+        .then(res => res.json())
+        .then(result => {
+          alert(result.message);
+          form.reset();
+          selectedCourse.classList.remove("selected");
+          selectedCourse = null;
+          courseSelection.style.display = "none";
+        })
+        .catch(err => {
+          alert("Ошибка отправки: " + err);
+        });
+    });
+
+    // Плавная прокрутка к началу страницы при загрузке
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'  // Плавная прокрутка
+        });
+      }, 100); // Задержка 100 мс
+    });
+  </script>
+</body>
+</html>
